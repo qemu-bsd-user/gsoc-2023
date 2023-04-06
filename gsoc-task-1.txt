@@ -1,0 +1,57 @@
+Task 1:
+
+Upstream settimeofday(2), gettimeofday(2), utimes(2) and lutimes(2).
+
+These system calls are emulated in the bsd-user fork's blitz branch, but not in
+the qemu-project branch. Your task is to prepare a series of patches for
+upstreaming this code into the qemu-project master branch. Maintain the same
+file names in the bsd-user branch. Each implementation of the system call should
+be a separate patch, as well as each auxiliary function.
+
+This change will add a new file to the build, so the meson build files should be
+updated as a separate patch.
+
+In addition to moving the code, you'll need to document where the code came from
+using git blame. However, the history is complicated, so if blame gets back to
+the base commit:
+
+commit e31b768202cf75f40eeecfe46aa1d1fb1c4a3433
+Author: Warner Losh <imp@bsdimp.com>
+Date:   Sat Sep 11 16:37:09 2021 -0600
+
+    Yeet! This time on to 2021-09-11
+    
+    Sponsored by:           Netflix
+
+you'll need to check the files in the bsd-user-rebase-3.1 branch to see who
+wrote things (I didn't write any of this code). For the real project, you may
+need to go back to the bsd-user branch as well (if you get back to the first
+commit of the rebase branch).
+
+Test Your Changes:
+
+You'll need to grab the test program to test this. You'll also need to create a
+jail as described in
+https://github.com/qemu-bsd-user/qemu-bsd-user/blob/blitz/BSD-USER.rst However,
+for this testing, you don't need to start the jail or install the
+qemu-bsd-user-static packages. You will need to create the jail, and make a note
+of where the jail's root is.
+
+Next, you'll need to checkout the gsoc-2023 repo from:
+
+% git clone git@github.com:qemu-bsd-user/gsoc-2023.git
+% cd gsoc-2023
+% setenv ARM_CHROOT /path/to/jail/131armv7	# Whatever poudriere jail -l says it is
+% setenv QEMU_BIN ~/git/qemu/00-qemu		# Where you're building upstream qemu
+% make test-1
+% make run-test-1
+
+Before the updates, qemu-arm will core dump (if new enough, or you are running
+the changes I hope to upstream soon) or return -78 (ENOSYS) (if not) when
+tracing. After your successful set of patches, all the tests will work. Though
+three of them have system calls which won't return success.
+
+Once you have the patches prepared, use 'git publish' available from
+https://github.com/stefanha/git-publish . You'll need to create a branch from
+'master' to make this eaiser. Be sure to specify '--to qemu-devel@nongnu.org'
+and '--cc imp@bsdimp.com' the first time you run it.
