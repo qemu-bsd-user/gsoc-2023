@@ -55,4 +55,4 @@ run-test-1: .PHONY
 	${QEMU_BIN}/qemu-arm -strace -L ${ARM_CHROOT} arm.gsoc-test-1-4
 
 clean:
-	rm -f *.o amd64.* arm.* arm/*.o
+	rm -f *.o amd64.* arm.* arm/*.o gsoc-test-1-?
