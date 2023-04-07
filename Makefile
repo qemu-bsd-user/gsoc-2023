@@ -24,8 +24,8 @@ ARM_CFLAGS=--sysroot ${ARM_CHROOT} -target freebsd-armv7
 	ld -Bstatic -o arm.${.TARGET} arm.${.PREFIX}.o arm/syscall.o
 	touch ${.TARGET}
 
-all: test-1 # test-2 test-3 test-4
-run: run-test-1
+all: test-1 test-2 # test-3 test-4
+run: run-test-1 run-test-2
 
 arm/syscall.o:
 	${CC} ${CFLAGS} ${ARM_CFLAGS} -c ${.IMPSRC} -o ${.PREFIX}.o
@@ -35,8 +35,13 @@ gsoc-test-1-1: ${SYSCALL}
 gsoc-test-1-2: ${SYSCALL}
 gsoc-test-1-3: ${SYSCALL}
 gsoc-test-1-4: ${SYSCALL}
+gsoc-test-2-1: ${SYSCALL}
+gsoc-test-2-2: ${SYSCALL}
+gsoc-test-2-3: ${SYSCALL}
+gsoc-test-2-4: ${SYSCALL}
 
 test-1: gsoc-test-1-1 gsoc-test-1-2 gsoc-test-1-3 gsoc-test-1-4
+test-2: gsoc-test-2-1 gsoc-test-2-2 gsoc-test-2-3 gsoc-test-2-4
 
 run-test-1: .PHONY
 	@echo ------------------------- Test 1-1 -------------------------
@@ -60,5 +65,27 @@ run-test-1: .PHONY
 	@echo ==== armv7
 	${QEMU_BIN}/qemu-arm -strace -L ${ARM_CHROOT} arm.gsoc-test-1-4
 
+run-test-2: .PHONY
+	@echo ------------------------- Test 2-1 -------------------------
+	@echo ==== amd64
+	truss amd64.gsoc-test-2-1
+	@echo ==== armv7
+	${QEMU_BIN}/qemu-arm -strace -L ${ARM_CHROOT} arm.gsoc-test-2-1
+	@echo ------------------------- Test 2-2 -------------------------
+	@echo ==== amd64
+	truss amd64.gsoc-test-2-2
+	@echo ==== armv7
+	${QEMU_BIN}/qemu-arm -strace -L ${ARM_CHROOT} arm.gsoc-test-2-2
+	@echo ------------------------- Test 2-3 -------------------------
+	@echo ==== amd64
+	truss amd64.gsoc-test-2-3
+	@echo ==== armv7
+	${QEMU_BIN}/qemu-arm -strace -L ${ARM_CHROOT} arm.gsoc-test-2-3
+	@echo ------------------------- Test 2-4 -------------------------
+	@echo ==== amd64
+	truss amd64.gsoc-test-2-4
+	@echo ==== armv7
+	${QEMU_BIN}/qemu-arm -strace -L ${ARM_CHROOT} arm.gsoc-test-2-4
+
 clean:
-	rm -f *.o amd64.* arm.* arm/*.o gsoc-test-1-?
+	rm -f *.o amd64.* arm.* arm/*.o gsoc-test-?-?
