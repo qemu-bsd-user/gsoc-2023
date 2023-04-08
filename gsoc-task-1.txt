@@ -5,8 +5,8 @@ lutimes(2) system calls from the blitz branch of the bsd-user fork hosted at
 https://github.com/qemu-bsd-user/qemu-bsd-user/tree/blitz.
 
 These calls start out in the freebsd/os-system.c and call code that implement
-them in freebsd/os-time.[ch]. The implementations call code to convert struct
-timeval to and from the guest format.
+them in bsd-user/freebsd/os-time.[ch]. The implementations call code to convert
+struct timeval to and from the guest format.
 
 In an ideal world, you'd be able to cherry-pick the changes from the blitz
 branch into qemu's main branch and be done. However, the history of this code is
@@ -14,7 +14,7 @@ a bit muddled, so that's not possible. You'll need to use use 'git blame' to
 find who originally contributed the code. On the 'blitz' branch, git blame shows
 that I committed the change in e31b768202cf.
 
-git blame bsd-user-rebase-3-1 bsd-user/freebsd/os-time.h
+git blame bsd-user-rebase-3.1 bsd-user/freebsd/os-time.h
 
 will allow you to find out who made the original commit (for the system calls,
 it's all the same person). Match up the name to the QEMU-SOBS file. You'll need
