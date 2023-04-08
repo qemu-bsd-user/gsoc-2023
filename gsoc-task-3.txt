@@ -1,0 +1,60 @@
+Task 3:
+
+Upstream the implementations of bind(2), connect(2), accept(2) and
+getpeername(2) system calls from the blitz branch of the bsd-user fork hosted at
+https://github.com/qemu-bsd-user/qemu-bsd-user/tree/blitz.
+
+These calls start out in the freebsd/os-system.c and call code that implement
+them in bsd-user/bsd-socket.[ch]. The implementations call code to convert
+struct timeval to and from the guest format.
+
+In an ideal world, you'd be able to cherry-pick the changes from the blitz
+branch into qemu's main branch and be done. However, the history of this code is
+a bit muddled, so that's not possible. You'll need to use use 'git blame' to
+find who originally contributed the code. On the 'blitz' branch, git blame shows
+that I committed the change in e31b768202cf.
+
+git blame bsd-user-rebase-3-1 bsd-user/bsd-socket.h
+
+will allow you to find out who made the original commit (for the system calls,
+it's all the same person). Match up the name to the QEMU-SOBS file. You'll need
+to cut and paste the code from the qemu-bsd-user fork blitz branch into a
+separate qemu-project master branch. For each of the commits, add --author
+<name/address from QEMU-SOBS> and the SOB line (I've secured permission from
+everyone in this file to do this, but I'll double check before submitting a pull
+request to qemu-project). Add your own SOB line by adding '-s' to the commit.
+
+Add the code to the bsd-socket.c and bsd-socket.h files one function at a
+time. Once they are all complete, add them to the build (copy the line(s) from
+bsd-user/freebsd/meson.build, use your own name for authorhsip here). Once
+os-time.c has been added to the build, you can update os-system.c to call these
+functions appropriately (you can add all the calls and adjust any includes in
+one commit). This sequence is so that each commit in the series is buildable, a
+requirement for patch series committed upstream.
+
+You'll also need to create a jail as described in
+https://github.com/qemu-bsd-user/qemu-bsd-user/blob/blitz/BSD-USER.rst However,
+for this testing, you don't need to start the jail or install the
+qemu-bsd-user-static packages described there. You will need to create the jail,
+and make a note of where the jail's root is.
+
+Next, you'll need to checkout the gsoc-2023 repo, build and run the tests for this
+
+% git clone git@github.com:qemu-bsd-user/gsoc-2023.git
+% cd gsoc-2023
+% setenv ARM_CHROOT /path/to/jail/131armv7	# Whatever poudriere jail -l says it is
+% setenv QEMU_BIN ~/git/qemu/00-qemu		# Where you're building upstream qemu
+% make test-3
+% make run-test-3
+
+Before your your changes, qemu-arm from qemu-project master will core dump (if
+new enough, or you are running the changes I hope to upstream soon) or return
+-78 (ENOSYS) (if not) when tracing. After your successful set of patches, all
+the tests will work. Though three of them have system calls which won't return
+success. Do not run these as root (one will change the system time if you
+do).
+
+Once you have the patches prepared, use 'git publish' available from
+https://github.com/stefanha/git-publish . You'll need to create a branch from
+'master' to make this eaiser. Be sure to specify '--to qemu-devel@nongnu.org'
+and '--cc imp@bsdimp.com' the first time you run it.
