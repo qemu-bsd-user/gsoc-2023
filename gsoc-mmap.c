@@ -2,9 +2,12 @@
  * Simple program that tests some mmap related things.
  */
 
-#include <unistd.h>
 #include <sys/syscall.h>
 #include <sys/mman.h>
+
+long syscall(int, ...);
+typedef __ssize_t ssize_t;
+typedef __uintptr_t uintptr_t;
 
 /*
  * Implement our own system calls using syscall. Pulling in these from libc
@@ -65,7 +68,7 @@ int _start(void)
 	void *addr;
 	int *i;
 
-	addr = mmap(0, 8192, PROT_READ | PROT_WRITE, MAP_ANON, -1, 0);
+	addr = mmap(0, 8192, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON, -1, 0);
 	if (addr == MAP_FAILED) {
 		fail("mmap failed unexpectedly\n");
 	}

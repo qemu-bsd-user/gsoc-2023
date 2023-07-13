@@ -38,7 +38,13 @@
 	str	r0,[r1];				\
 	mvn	r0, #0x00000000;			\
 	mvn	r1, #0x00000000;			\
+	RET;						\
+	END(x);
+
+	/* Not sure what's generating this, but hack it up */
+	ENTRY(__aeabi_unwind_cpp_pr0)
 	RET
+	END(__aeabi_unwind_cpp_pr0)
 
 	.bss
 	.p2align	2
@@ -47,4 +53,4 @@ errno:
 	.long	0
 
 RSYSCALL(syscall)
-	
+

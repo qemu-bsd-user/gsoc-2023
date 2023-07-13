@@ -41,4 +41,5 @@ errno:
 	.long	0
 
 RSYSCALL(syscall)
+RSYSCALL(__syscall)
 	
