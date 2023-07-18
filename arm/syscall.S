@@ -53,4 +53,13 @@ errno:
 	.long	0
 
 RSYSCALL(syscall)
-
+RSYSCALL(mmap)
+RSYSCALL(mprotect)
+RSYSCALL(munmap)
+RSYSCALL(write)
+RSYSCALL(fstat)
+RSYSCALL(fstatat)
+RSYSCALL(getfh)
+RSYSCALL(statfs)
+RSYSCALL(getdirentries)
+RSYSCALL(fcntl)

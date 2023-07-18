@@ -19,21 +19,24 @@ CFLAGS=-Wno-invalid-noreturn # To make exit work without undue hassles
 ARM_CFLAGS=--sysroot ${ARM_CHROOT} -target freebsd-armv7
 .c:
 	${CC} -g ${CFLAGS} -c ${.IMPSRC} -o amd64.${.PREFIX}.o
-	ld -g -Bstatic -o amd64.${.TARGET} amd64.${.PREFIX}.o -L/usr/lib -lc
+	ld -g -Bstatic -o amd64.${.TARGET} amd64.${.PREFIX}.o amd64/syscall.o
 	${CC} -g ${CFLAGS} ${ARM_CFLAGS} -c ${.IMPSRC} -o arm.${.PREFIX}.o
 	ld -g -Bstatic -o arm.${.TARGET} arm.${.PREFIX}.o arm/syscall.o
 	touch ${.TARGET}
 
-all: test-mmap
-run: run-mmap
+all: test-mmap test-fstat
 
+amd64/syscall.o:
+	${CC} ${CFLAGS} ${AMD_CFLAGS} -c ${.IMPSRC} -o ${.PREFIX}.o
 arm/syscall.o:
 	${CC} ${CFLAGS} ${ARM_CFLAGS} -c ${.IMPSRC} -o ${.PREFIX}.o
 
-SYSCALL=arm/syscall.o
+SYSCALL=arm/syscall.o amd64/syscall.o
 gsoc-mmap: ${SYSCALL}
+gsoc-fstat: ${SYSCALL}
 
 test-mmap: gsoc-mmap
+test-fstat: gsoc-fstat
 
 test-mmap: .PHONY
 	@echo ------------------------- Test mmap -------------------------
@@ -41,5 +44,12 @@ test-mmap: .PHONY
 	truss amd64.gsoc-mmap
 	@echo ==== armv7
 	${QEMU_BIN}/qemu-arm -strace -L ${ARM_CHROOT} arm.gsoc-mmap
+
+test-fstat: .PHONY
+	@echo ------------------------- Test fstat -------------------------
+	@echo ==== amd64
+	truss amd64.gsoc-fstat
+	@echo ==== armv7
+	${QEMU_BIN}/qemu-arm -strace -L ${ARM_CHROOT} arm.gsoc-fstat
 clean:
-	rm -f *.o amd64.* arm.* arm/*.o gsoc-mmap
+	rm -f *.o amd64.* arm.* arm/*.o gsoc-fstat gsoc-mmap
