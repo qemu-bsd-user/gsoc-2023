@@ -4,7 +4,7 @@ Sometimes in a code review, the commentators suggest that commits be broken up i
 Here are a few of the collected tricks I have learned over the years.
 They are presented as 'editing the current tip of the tree' for simplicity.
 However, you can apply them to rebasing as well using the 'edit' action.
-The last section is explicitly about using rebase to take 2 commits and make them 4 commits, each consisting of parts of the original two.
+The last section offers a strategy when you need to recombine the commits.
 
 == Splitting up
 
@@ -50,4 +50,6 @@ I usually keep the original commit messages intact and do not edit them at this 
 I then use `git rebase -i` to recombine them using the 'squash' action.
 This gives me the new commits with copies of the original two commits' commit messages so I can edit each one down appropriately.
 I find that doing this in multiple steps makes it easier to keep track of everything.
-Plus, if I somehow mess it up, a `git rebase --abort` will undo what I just did and let me start over (another reason that I try to do only one thing at a time in the rebase: the reset operation is easier than if I have to preserve some of the work).
+This allows easy backing out half way through if you realize you have done something in error.
+Doing only one or a few things at a time makes it easier to do that.
+`git reflog` can also help if you made a mistake several steps ago.
