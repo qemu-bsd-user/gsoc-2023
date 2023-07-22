@@ -1,0 +1,53 @@
+= Some Hints For Splitting Commits
+
+Sometimes in a code review, the commentators suggest that commits be broken up into smaller pieces.
+Here are a few of the collected tricks I have learned over the years.
+They are presented as 'editing the current tip of the tree' for simplicity.
+However, you can apply them to rebasing as well using the 'edit' action.
+The last section is explicitly about using rebase to take 2 commits and make them 4 commits, each consisting of parts of the original two.
+
+== Splitting up
+
+Sometimes you have a commit that you need to split up.
+This section will show you how to do that.
+Briefly, you will reset the `HEAD` of the tree to remove the commit from the current branch (the original hash remains in the repo), and then add and commit it piecemeal.
+
+Before we get started on doing the change, there's two steps to do:
+
+* Run `git status` to ensure the tree is clean. +
+If the tree is unclean, then you can lose changes in the following steps (or have them accidentally merged in).
+* Run `git show` to show the commit you are working on. +
+This is especially important when using these steps when doing a `git rebase -i` with and edit step. +
+It also helps to know what the whole change looks like.
+
+Now, to 'undo' the change from the repository, make sure the changes are what we think, then redo the changes.
+
+* Run `git reset --soft HEAD^` to 'undo' the change. +
+This will set the pseudo-tag `ORIG_HEAD` to the value of `HEAD` before this command.
+* Run `git diff` and ensure that the diff matches the diff part of the `git show` you did earlier.
+* Run `git add -ip` to interactively select the subset of the change you want. +
+There are instructions for how to edit the context diff at the end of the diff, so I won't go over them here.
+* Run `git commit -c ORIG_HEAD` to commit the change. +
+This commits the change and copies the commit message fro the pseudo-tag `ORIG_HEAD`. +
+More often than not, when you are splitting changes, you will want a subset of the original message, or to edit it somehow.
+* Run `git diff` to see what's left to commit. +
+Repeat the last two steps until there's no more changes left. +
+`git commit` does not move `ORIG_HEAD` so you will start with the right commit message each time.
+
+If you are really operating on the last change in your patch series, you are now done: the patch is split up.
+If you are doing this inside a `git rebase -i` with an `edit` action for the step, do not forget to now run `git rebase --continue` to complete the process.
+I usually just edit one at a time to keep things simple (I often forget to do the `git rebase --continue` if I have too many things to edit).
+
+== Rearranging the commits.
+
+Sometimes, you have 2 commits that should be 2 different commits, or some similar rearrangement.
+Each of the new commits have parts of the original commits.
+What I like to do here is take the original two commits and break them down into the basic parts using the previous section.
+So I break the first commit down into the commit into 2 new commits.
+I repeat the process for the second commit.
+There are now 4 commits in my branch.
+I usually keep the original commit messages intact and do not edit them at this stage.
+I then use `git rebase -i` to recombine them using the 'squash' action.
+This gives me the new commits with copies of the original two commits' commit messages so I can edit each one down appropriately.
+I find that doing this in multiple steps makes it easier to keep track of everything.
+Plus, if I somehow mess it up, a `git rebase --abort` will undo what I just did and let me start over (another reason that I try to do only one thing at a time in the rebase: the reset operation is easier than if I have to preserve some of the work).
