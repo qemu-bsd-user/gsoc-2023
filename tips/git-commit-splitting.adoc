@@ -22,7 +22,7 @@ It also helps to know what the whole change looks like.
 
 Now, to 'undo' the change from the repository, make sure the changes are what we think, then redo the changes.
 
-* Run `git reset --soft HEAD^` to 'undo' the change. +
+* Run `git reset HEAD^` to 'undo' the change. +
 This will set the pseudo-tag `ORIG_HEAD` to the value of `HEAD` before this command.
 * Run `git diff` and ensure that the diff matches the diff part of the `git show` you did earlier.
 * Run `git add -ip` to interactively select the subset of the change you want. +
